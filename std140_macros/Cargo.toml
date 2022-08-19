@@ -1,11 +1,9 @@
 [package]
 name = "std140-macros"
 version = "0.1.2"
-description = "Procedural macros for the std140 crate."
-authors = ["Roland Schermer <roland0507@gmail.com>"]
+authors = ["Roland Schermer <roland0507@gmail.com>", "zen-chromeless-platform"]
+description = "Procedural macros for the std140 fork crate."
 edition = "2018"
-homepage = "https://github.com/RSSchermer/std140.rs"
-repository = "https://github.com/RSSchermer/std140.rs"
 license = "MIT"
 
 [lib]

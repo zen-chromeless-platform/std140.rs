@@ -194,7 +194,10 @@ unsafe impl Std140ArrayElement for uint {}
 /// # Example
 ///
 /// ```
-/// let value = std140::uint(1) as std140::boolean;
+/// use ::std140::{boolean, uint};
+/// 
+/// assert_eq!(boolean::from(uint(1)), boolean::True);
+/// assert_eq!(boolean::from(uint(0)), boolean::False);
 /// ```
 #[repr(u32)]
 #[derive(Clone, Copy, PartialEq, Debug)]
@@ -206,12 +209,23 @@ pub enum boolean {
 unsafe impl ReprStd140 for boolean {}
 unsafe impl Std140ArrayElement for boolean {}
 
+macro_rules! impl_from_for_boolean {
+    ($name:ty, $zero:literal) => {
+        impl From<$name> for boolean {
+            fn from(value: $name) -> Self {
+                if value.0 != $zero { boolean::True } else {boolean::False}
+            }
+        }                
+    };
+}
+
+impl_from_for_boolean!(float, 0.);
+impl_from_for_boolean!(int, 0);
+impl_from_for_boolean!(uint, 0);
+
 impl From<bool> for boolean {
     fn from(value: bool) -> Self {
-        match value {
-            true => boolean::True,
-            false => boolean::False,
-        }
+        if value { boolean::True } else {boolean::False}
     }
 }
 

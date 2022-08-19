@@ -1,5 +1,3 @@
-extern crate std140;
-
 #[std140::repr_std140]
 struct PointLight {
     // Note: the compiler currently seems to like to refer to the Std140Struct bound, presumably

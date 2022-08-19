@@ -1,9 +1,8 @@
-extern crate proc_macro;
-
-use proc_macro::TokenStream;
-use proc_macro2;
-use quote::quote;
-use syn::{parse_macro_input, DeriveInput};
+use ::{
+    proc_macro::TokenStream,
+    quote::quote,
+    syn::{parse_macro_input, DeriveInput},
+};
 
 mod repr_std140;
 

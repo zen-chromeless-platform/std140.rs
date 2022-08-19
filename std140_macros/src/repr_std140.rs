@@ -1,7 +1,8 @@
-use proc_macro2::{Span, TokenStream};
-use quote::{quote, quote_spanned};
-use syn::spanned::Spanned;
-use syn::{Data, DeriveInput, Ident};
+use ::{
+    proc_macro2::{Span, TokenStream},
+    quote::{quote, quote_spanned},
+    syn::{spanned::Spanned, Data, DeriveInput, Ident}
+};
 
 pub fn expand_repr_std140(input: &DeriveInput) -> Result<TokenStream, String> {
     if let Data::Struct(data) = &input.data {

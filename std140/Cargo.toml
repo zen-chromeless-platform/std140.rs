@@ -3,7 +3,7 @@ name = "std140"
 version = "0.2.5"
 authors = ["Roland Schermer <roland0507@gmail.com>", "zen-chromeless-platform"]
 description = "std140 fork"
-edition = "2018"
+edition = "2021"
 license = "MIT"
 readme = "../README.md"
 

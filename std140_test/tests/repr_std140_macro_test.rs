@@ -8,7 +8,7 @@ struct PointLight {
 
 #[std140::repr_std140]
 struct Uniforms {
-    transform: std140::mat4x4,
+    transform: std140::mat::mat4x4,
     ambient_light_color: std140::vec::vec3,
     lights: std140::array::array<PointLight, 2>,
 }

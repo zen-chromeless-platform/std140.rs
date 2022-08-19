@@ -17,38 +17,6 @@
 //! with the [`#[repr_std140]`][repr_std140] attribute: this ensures the rust compiler will
 //! correctly order and align the fields.
 //!
-//! For GLSL primitive types, compatibility is defined by the following mapping from GLSL types to
-//! `std140` types:
-//!
-//! - `float`: [float]
-//! - `vec2`: [vec2]
-//! - `vec3`: [vec3]
-//! - `vec4`: [vec4]
-//! - `mat2`: [mat2x2][struct@mat2x2]
-//! - `mat3`: [mat3x3][struct@mat3x3]
-//! - `mat4`: [mat4x4][struct@mat4x4]
-//! - `mat2x2`: [mat2x2][struct@mat2x2]
-//! - `mat2x3`: [mat2x3][struct@mat2x3]
-//! - `mat2x4`: [mat2x4][struct@mat2x4]
-//! - `mat3x2`: [mat3x2][struct@mat3x2]
-//! - `mat3x3`: [mat3x3][struct@mat3x3]
-//! - `mat3x4`: [mat3x4][struct@mat3x4]
-//! - `mat4x2`: [mat4x2][struct@mat4x2]
-//! - `mat4x3`: [mat4x3][struct@mat4x3]
-//! - `mat4x4`: [mat4x4][struct@mat4x4]
-//! - `int`: [int]
-//! - `ivec2`: [ivec2]
-//! - `ivec3`: [ivec3]
-//! - `ivec4`: [ivec4]
-//! - `uint`: [uint]
-//! - `uvec2`: [uvec2]
-//! - `uvec3`: [uvec3]
-//! - `uvec4`: [uvec4]
-//! - `bool`: [boolean]
-//! - `bvec2`: [bvec2]
-//! - `bvec3`: [bvec3]
-//! - `bvec4`: [bvec4]
-//!
 //! A GLSL struct type is compatible with a field if this field's type is a Rust struct marked with
 //! [`#[repr_std140]`][repr_std140] and this struct's fields are pair-wise compatible with the GLSL
 //! struct field in the corresponding position.
@@ -84,7 +52,7 @@
 //!
 //! #[std140::repr_std140]
 //! struct Uniforms {
-//!     transform: std140::mat4x4,
+//!     transform: std140::mat::mat4x4,
 //!     ambient_light_color: std140::vec::vec3,
 //!     lights: std140::array::array<PointLight, 2>
 //! }
@@ -115,11 +83,6 @@
 //!
 //! [repr_std140]: attr.repr_std140.html
 
-use ::std::{
-    fmt,
-    ops::{Deref, DerefMut},
-};
-
 /// Attribute macro that can be applied to a struct to ensure its representation is compatible with
 /// the std140 memory layout convention.
 ///
@@ -139,6 +102,7 @@ use ::std::{
 pub use std140_macros::repr_std140;
 
 pub mod vec;
+pub mod mat;
 pub mod array;
 
 /// Marker trait for types that can be used as fields in structs marked with
@@ -230,7 +194,7 @@ unsafe impl Std140ArrayElement for uint {}
 /// # Example
 ///
 /// ```
-/// let value = std140::uint(1);
+/// let value = std140::uint(1) as std140::boolean;
 /// ```
 #[repr(u32)]
 #[derive(Clone, Copy, PartialEq, Debug)]
@@ -251,7 +215,7 @@ impl From<bool> for boolean {
     }
 }
 
-/// A matrix with 2 columns and 2 rows, represented by 2 [vec2] vectors.
+/// Initializes a [mat2x2][crate::mat::mat2x2].
 ///
 /// # Example
 ///
@@ -261,53 +225,13 @@ impl From<bool> for boolean {
 ///     std140::vec::vec2(0.0, 1.0),
 /// );
 /// ```
-#[derive(Clone, Copy, PartialEq)]
-pub struct mat2x2 {
-    columns: array::array<vec::vec2, 2>,
-}
-
-impl mat2x2 {
-    /// Creates a new [mat2x2] with zeros in all positions.
-    pub fn zero() -> Self {
-        mat2x2(vec::vec2::zero(), vec::vec2::zero())
-    }
-}
-
-/// Initializes a [mat2x2][struct@mat2x2]
-///
-/// # Example
-///
-/// See [mat2x2][struct@mat2x2].
-pub fn mat2x2(c0: vec::vec2, c1: vec::vec2) -> mat2x2 {
-    mat2x2 {
+pub const fn mat2x2(c0: vec::vec2, c1: vec::vec2) -> mat::mat2x2 {
+    mat::mat2x2 {
         columns: array![c0, c1],
     }
 }
 
-unsafe impl ReprStd140 for mat2x2 {}
-unsafe impl Std140ArrayElement for mat2x2 {}
-
-impl Deref for mat2x2 {
-    type Target = array::array<vec::vec2, 2>;
-
-    fn deref(&self) -> &Self::Target {
-        &self.columns
-    }
-}
-
-impl DerefMut for mat2x2 {
-    fn deref_mut(&mut self) -> &mut Self::Target {
-        &mut self.columns
-    }
-}
-
-impl fmt::Debug for mat2x2 {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        f.write_fmt(format_args!("mat2x2{:?}", &self.columns))
-    }
-}
-
-/// A matrix with 2 columns and 3 rows, represented by 2 [vec3] vectors.
+/// Initializes a [mat2x3][crate::mat::mat2x3].
 ///
 /// # Example
 ///
@@ -317,53 +241,13 @@ impl fmt::Debug for mat2x2 {
 ///     std140::vec::vec3(0.0, 0.0, 1.0),
 /// );
 /// ```
-#[derive(Clone, Copy, PartialEq)]
-pub struct mat2x3 {
-    columns: array::array<vec::vec3, 2>,
-}
-
-impl mat2x3 {
-    /// Creates a new [mat2x3] with zeros in all positions.
-    pub fn zero() -> Self {
-        mat2x3(vec::vec3::zero(), vec::vec3::zero())
-    }
-}
-
-/// Initializes a [mat2x3][struct@mat2x3]
-///
-/// # Example
-///
-/// See [mat2x3][struct@mat2x3].
-pub fn mat2x3(c0: vec::vec3, c1: vec::vec3) -> mat2x3 {
-    mat2x3 {
+pub const fn mat2x3(c0: vec::vec3, c1: vec::vec3) -> mat::mat2x3 {
+    mat::mat2x3 {
         columns: array![c0, c1],
     }
 }
 
-unsafe impl ReprStd140 for mat2x3 {}
-unsafe impl Std140ArrayElement for mat2x3 {}
-
-impl Deref for mat2x3 {
-    type Target = array::array<vec::vec3, 2>;
-
-    fn deref(&self) -> &Self::Target {
-        &self.columns
-    }
-}
-
-impl DerefMut for mat2x3 {
-    fn deref_mut(&mut self) -> &mut Self::Target {
-        &mut self.columns
-    }
-}
-
-impl fmt::Debug for mat2x3 {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        f.write_fmt(format_args!("mat2x3{:?}", &self.columns))
-    }
-}
-
-/// A matrix with 2 columns and 4 rows, represented by 2 [vec4] vectors.
+/// Initializes a [mat2x4][crate::mat::mat2x4].
 ///
 /// # Example
 ///
@@ -373,53 +257,13 @@ impl fmt::Debug for mat2x3 {
 ///     std140::vec::vec4(0.0, 0.0, 0.0, 1.0),
 /// );
 /// ```
-#[derive(Clone, Copy, PartialEq)]
-pub struct mat2x4 {
-    columns: array::array<vec::vec4, 2>,
-}
-
-impl mat2x4 {
-    /// Creates a new [mat2x4] with zeros in all positions.
-    pub fn zero() -> Self {
-        mat2x4(vec::vec4::zero(), vec::vec4::zero())
-    }
-}
-
-/// Initializes a [mat2x4][struct@mat2x4]
-///
-/// # Example
-///
-/// See [mat2x4][struct@mat2x4].
-pub fn mat2x4(c0: vec::vec4, c1: vec::vec4) -> mat2x4 {
-    mat2x4 {
+pub const fn mat2x4(c0: vec::vec4, c1: vec::vec4) -> mat::mat2x4 {
+    mat::mat2x4 {
         columns: array![c0, c1],
     }
 }
 
-unsafe impl ReprStd140 for mat2x4 {}
-unsafe impl Std140ArrayElement for mat2x4 {}
-
-impl Deref for mat2x4 {
-    type Target = array::array<vec::vec4, 2>;
-
-    fn deref(&self) -> &Self::Target {
-        &self.columns
-    }
-}
-
-impl DerefMut for mat2x4 {
-    fn deref_mut(&mut self) -> &mut Self::Target {
-        &mut self.columns
-    }
-}
-
-impl fmt::Debug for mat2x4 {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        f.write_fmt(format_args!("mat2x4{:?}", &self.columns))
-    }
-}
-
-/// A matrix with 3 columns and 2 rows, represented by 3 [vec2] vectors.
+/// Initializes a [mat3x2][crate::mat::mat3x2].
 ///
 /// # Example
 ///
@@ -430,53 +274,13 @@ impl fmt::Debug for mat2x4 {
 ///     std140::vec::vec2(0.0, 1.0),
 /// );
 /// ```
-#[derive(Clone, Copy, PartialEq)]
-pub struct mat3x2 {
-    columns: array::array<vec::vec2, 3>,
-}
-
-impl mat3x2 {
-    /// Creates a new [mat3x2] with zeros in all positions.
-    pub fn zero() -> Self {
-        mat3x2(vec::vec2::zero(), vec::vec2::zero(), vec::vec2::zero())
-    }
-}
-
-/// Initializes a [mat3x2][struct@mat3x2]
-///
-/// # Example
-///
-/// See [mat3x2][struct@mat3x2].
-pub fn mat3x2(c0: vec::vec2, c1: vec::vec2, c2: vec::vec2) -> mat3x2 {
-    mat3x2 {
+pub const fn mat3x2(c0: vec::vec2, c1: vec::vec2, c2: vec::vec2) -> mat::mat3x2 {
+    mat::mat3x2 {
         columns: array![c0, c1, c2],
     }
 }
 
-unsafe impl ReprStd140 for mat3x2 {}
-unsafe impl Std140ArrayElement for mat3x2 {}
-
-impl Deref for mat3x2 {
-    type Target = array::array<vec::vec2, 3>;
-
-    fn deref(&self) -> &Self::Target {
-        &self.columns
-    }
-}
-
-impl DerefMut for mat3x2 {
-    fn deref_mut(&mut self) -> &mut Self::Target {
-        &mut self.columns
-    }
-}
-
-impl fmt::Debug for mat3x2 {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        f.write_fmt(format_args!("mat3x2{:?}", &self.columns))
-    }
-}
-
-/// A matrix with 3 columns and 3 rows, represented by 3 [vec3] vectors.
+/// Initializes a [mat3x3][crate::mat::mat3x3].
 ///
 /// # Example
 ///
@@ -487,53 +291,13 @@ impl fmt::Debug for mat3x2 {
 ///     std140::vec::vec3(0.0, 0.0, 1.0),
 /// );
 /// ```
-#[derive(Clone, Copy, PartialEq)]
-pub struct mat3x3 {
-    columns: array::array<vec::vec3, 3>,
-}
-
-impl mat3x3 {
-    /// Creates a new [mat3x3] with zeros in all positions.
-    pub fn zero() -> Self {
-        mat3x3(vec::vec3::zero(), vec::vec3::zero(), vec::vec3::zero())
-    }
-}
-
-/// Initializes a [mat3x3][struct@mat3x3]
-///
-/// # Example
-///
-/// See [mat3x3][struct@mat3x3].
-pub fn mat3x3(c0: vec::vec3, c1: vec::vec3, c2: vec::vec3) -> mat3x3 {
-    mat3x3 {
+pub const fn mat3x3(c0: vec::vec3, c1: vec::vec3, c2: vec::vec3) -> mat::mat3x3 {
+    mat::mat3x3 {
         columns: array![c0, c1, c2],
     }
 }
 
-unsafe impl ReprStd140 for mat3x3 {}
-unsafe impl Std140ArrayElement for mat3x3 {}
-
-impl Deref for mat3x3 {
-    type Target = array::array<vec::vec3, 3>;
-
-    fn deref(&self) -> &Self::Target {
-        &self.columns
-    }
-}
-
-impl DerefMut for mat3x3 {
-    fn deref_mut(&mut self) -> &mut Self::Target {
-        &mut self.columns
-    }
-}
-
-impl fmt::Debug for mat3x3 {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        f.write_fmt(format_args!("mat3x3{:?}", &self.columns))
-    }
-}
-
-/// A matrix with 3 columns and 4 rows, represented by 3 [vec4] vectors.
+/// Initializes a [mat3x4][crate::mat::mat3x4].
 ///
 /// # Example
 ///
@@ -544,53 +308,13 @@ impl fmt::Debug for mat3x3 {
 ///     std140::vec::vec4(0.0, 0.0, 0.0, 1.0),
 /// );
 /// ```
-#[derive(Clone, Copy, PartialEq)]
-pub struct mat3x4 {
-    columns: array::array<vec::vec4, 3>,
-}
-
-impl mat3x4 {
-    /// Creates a new [mat3x4] with zeros in all positions.
-    pub fn zero() -> Self {
-        mat3x4(vec::vec4::zero(), vec::vec4::zero(), vec::vec4::zero())
-    }
-}
-
-/// Initializes a [mat3x4][struct@mat3x4]
-///
-/// # Example
-///
-/// See [mat3x4][struct@mat3x4].
-pub fn mat3x4(c0: vec::vec4, c1: vec::vec4, c2: vec::vec4) -> mat3x4 {
-    mat3x4 {
+pub const fn mat3x4(c0: vec::vec4, c1: vec::vec4, c2: vec::vec4) -> mat::mat3x4 {
+    mat::mat3x4 {
         columns: array![c0, c1, c2],
     }
 }
 
-unsafe impl ReprStd140 for mat3x4 {}
-unsafe impl Std140ArrayElement for mat3x4 {}
-
-impl Deref for mat3x4 {
-    type Target = array::array<vec::vec4, 3>;
-
-    fn deref(&self) -> &Self::Target {
-        &self.columns
-    }
-}
-
-impl DerefMut for mat3x4 {
-    fn deref_mut(&mut self) -> &mut Self::Target {
-        &mut self.columns
-    }
-}
-
-impl fmt::Debug for mat3x4 {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        f.write_fmt(format_args!("mat3x4{:?}", &self.columns))
-    }
-}
-
-/// A matrix with 4 columns and 2 rows, represented by 4 [vec2] vectors.
+/// Initializes a [mat4x2][crate::mat::mat4x2].
 ///
 /// # Example
 ///
@@ -602,53 +326,13 @@ impl fmt::Debug for mat3x4 {
 ///     std140::vec::vec2(0.0, 1.0),
 /// );
 /// ```
-#[derive(Clone, Copy, PartialEq)]
-pub struct mat4x2 {
-    columns: array::array<vec::vec2, 4>,
-}
-
-impl mat4x2 {
-    /// Creates a new [mat4x2] with zeros in all positions.
-    pub fn zero() -> Self {
-        mat4x2(vec::vec2::zero(), vec::vec2::zero(), vec::vec2::zero(), vec::vec2::zero())
-    }
-}
-
-/// Initializes a [mat4x2][struct@mat4x2]
-///
-/// # Example
-///
-/// See [mat4x2][struct@mat4x2].
-pub fn mat4x2(c0: vec::vec2, c1: vec::vec2, c2: vec::vec2, c3: vec::vec2) -> mat4x2 {
-    mat4x2 {
+pub const fn mat4x2(c0: vec::vec2, c1: vec::vec2, c2: vec::vec2, c3: vec::vec2) -> mat::mat4x2 {
+    mat::mat4x2 {
         columns: array![c0, c1, c2, c3],
     }
 }
 
-unsafe impl ReprStd140 for mat4x2 {}
-unsafe impl Std140ArrayElement for mat4x2 {}
-
-impl Deref for mat4x2 {
-    type Target = array::array<vec::vec2, 4>;
-
-    fn deref(&self) -> &Self::Target {
-        &self.columns
-    }
-}
-
-impl DerefMut for mat4x2 {
-    fn deref_mut(&mut self) -> &mut Self::Target {
-        &mut self.columns
-    }
-}
-
-impl fmt::Debug for mat4x2 {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        f.write_fmt(format_args!("mat4x2{:?}", &self.columns))
-    }
-}
-
-/// A matrix with 4 columns and 3 rows, represented by 4 [vec3] vectors.
+/// Initializes a [mat4x3][crate::mat::mat4x3].
 ///
 /// # Example
 ///
@@ -660,53 +344,13 @@ impl fmt::Debug for mat4x2 {
 ///     std140::vec::vec3(0.0, 0.0, 1.0),
 /// );
 /// ```
-#[derive(Clone, Copy, PartialEq)]
-pub struct mat4x3 {
-    columns: array::array<vec::vec3, 4>,
-}
-
-impl mat4x3 {
-    /// Creates a new [mat4x3] with zeros in all positions.
-    pub fn zero() -> Self {
-        mat4x3(vec::vec3::zero(), vec::vec3::zero(), vec::vec3::zero(), vec::vec3::zero())
-    }
-}
-
-/// Initializes a [mat4x3][struct@mat4x3]
-///
-/// # Example
-///
-/// See [mat4x3][struct@mat4x3].
-pub fn mat4x3(c0: vec::vec3, c1: vec::vec3, c2: vec::vec3, c3: vec::vec3) -> mat4x3 {
-    mat4x3 {
+pub const fn mat4x3(c0: vec::vec3, c1: vec::vec3, c2: vec::vec3, c3: vec::vec3) -> mat::mat4x3 {
+    mat::mat4x3 {
         columns: array![c0, c1, c2, c3],
     }
 }
 
-unsafe impl ReprStd140 for mat4x3 {}
-unsafe impl Std140ArrayElement for mat4x3 {}
-
-impl Deref for mat4x3 {
-    type Target = array::array<vec::vec3, 4>;
-
-    fn deref(&self) -> &Self::Target {
-        &self.columns
-    }
-}
-
-impl DerefMut for mat4x3 {
-    fn deref_mut(&mut self) -> &mut Self::Target {
-        &mut self.columns
-    }
-}
-
-impl fmt::Debug for mat4x3 {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        f.write_fmt(format_args!("mat4x3{:?}", &self.columns))
-    }
-}
-
-/// A matrix with 4 columns and 4 rows, represented by 4 [vec4] vectors.
+/// Initializes a [mat4x4][crate::mat::mat4x4].
 ///
 /// # Example
 ///
@@ -718,48 +362,8 @@ impl fmt::Debug for mat4x3 {
 ///     std140::vec::vec4(0.0, 0.0, 0.0, 1.0),
 /// );
 /// ```
-#[derive(Clone, Copy, PartialEq)]
-pub struct mat4x4 {
-    columns: array::array<vec::vec4, 4>,
-}
-
-impl mat4x4 {
-    /// Creates a new [mat4x4] with zeros in all positions.
-    pub fn zero() -> Self {
-        mat4x4(vec::vec4::zero(), vec::vec4::zero(), vec::vec4::zero(), vec::vec4::zero())
-    }
-}
-
-/// Initializes a [mat4x4][struct@mat4x4]
-///
-/// # Example
-///
-/// See [mat4x4][struct@mat4x4].
-pub fn mat4x4(c0: vec::vec4, c1: vec::vec4, c2: vec::vec4, c3: vec::vec4) -> mat4x4 {
-    mat4x4 {
+pub const fn mat4x4(c0: vec::vec4, c1: vec::vec4, c2: vec::vec4, c3: vec::vec4) -> mat::mat4x4 {
+    mat::mat4x4 {
         columns: array![c0, c1, c2, c3],
-    }
-}
-
-unsafe impl ReprStd140 for mat4x4 {}
-unsafe impl Std140ArrayElement for mat4x4 {}
-
-impl Deref for mat4x4 {
-    type Target = array::array<vec::vec4, 4>;
-
-    fn deref(&self) -> &Self::Target {
-        &self.columns
-    }
-}
-
-impl DerefMut for mat4x4 {
-    fn deref_mut(&mut self) -> &mut Self::Target {
-        &mut self.columns
-    }
-}
-
-impl fmt::Debug for mat4x4 {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        f.write_fmt(format_args!("mat4x4{:?}", &self.columns))
     }
 }

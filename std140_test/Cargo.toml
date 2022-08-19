@@ -1,6 +1,6 @@
 [package]
 name = "std140_test"
-version = "0.1.0"
+version = "0.1.0-0.1.0-fork"
 authors = ["Roland Schermer <roland0507@gmail.com>", "zen-chromeless-platform"]
 edition = "2021"
 publish = false

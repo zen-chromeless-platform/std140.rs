@@ -1,6 +1,6 @@
 [package]
 name = "std140"
-version = "0.2.5"
+version = "0.1.0-0.2.5-fork"
 authors = ["Roland Schermer <roland0507@gmail.com>", "zen-chromeless-platform"]
 description = "std140 fork"
 edition = "2021"

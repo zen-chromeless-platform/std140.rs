@@ -1,6 +1,6 @@
 [package]
 name = "std140_macros"
-version = "0.1.2"
+version = "0.1.0-0.1.2-fork"
 authors = ["Roland Schermer <roland0507@gmail.com>", "zen-chromeless-platform"]
 description = "Procedural macros for the std140 fork crate."
 edition = "2021"

@@ -78,32 +78,32 @@
 //! ```rust
 //! #[std140::repr_std140]
 //! struct PointLight {
-//!     position: std140::vec3,
+//!     position: std140::vec::vec3,
 //!     intensity: std140::float,
 //! }
 //!
 //! #[std140::repr_std140]
 //! struct Uniforms {
 //!     transform: std140::mat4x4,
-//!     ambient_light_color: std140::vec3,
+//!     ambient_light_color: std140::vec::vec3,
 //!     lights: std140::array::array<PointLight, 2>
 //! }
 //!
 //! let instance = Uniforms {
 //!     transform: std140::mat4x4(
-//!         std140::vec4(1.0, 0.0, 0.0, 0.0),
-//!         std140::vec4(0.0, 1.0, 0.0, 0.0),
-//!         std140::vec4(0.0, 0.0, 1.0, 0.0),
-//!         std140::vec4(0.0, 0.0, 0.0, 1.0),
+//!         std140::vec::vec4(1.0, 0.0, 0.0, 0.0),
+//!         std140::vec::vec4(0.0, 1.0, 0.0, 0.0),
+//!         std140::vec::vec4(0.0, 0.0, 1.0, 0.0),
+//!         std140::vec::vec4(0.0, 0.0, 0.0, 1.0),
 //!     ),
-//!     ambient_light_color: std140::vec3(0.2, 0.2, 0.2),
+//!     ambient_light_color: std140::vec::vec3(0.2, 0.2, 0.2),
 //!     lights: std140::array![
 //!         PointLight {
-//!             position: std140::vec3(10.0, 0.0, 10.0),
+//!             position: std140::vec::vec3(10.0, 0.0, 10.0),
 //!             intensity: std140::float(0.5)
 //!         },
 //!         PointLight {
-//!             position: std140::vec3(0.0, 10.0, 10.0),
+//!             position: std140::vec::vec3(0.0, 10.0, 10.0),
 //!             intensity: std140::float(0.8)
 //!         },
 //!     ]
@@ -117,7 +117,7 @@
 
 use ::std::{
     fmt,
-    ops::{Deref, DerefMut, Index, IndexMut},
+    ops::{Deref, DerefMut},
 };
 
 /// Attribute macro that can be applied to a struct to ensure its representation is compatible with
@@ -132,12 +132,13 @@ use ::std::{
 /// ```rust
 /// #[std140::repr_std140]
 /// struct PointLight {
-///     position: std140::vec3,
+///     position: std140::vec::vec3,
 ///     intensity: std140::float,
 /// }
 /// ```
 pub use std140_macros::repr_std140;
 
+pub mod vec;
 pub mod array;
 
 /// Marker trait for types that can be used as fields in structs marked with
@@ -162,9 +163,9 @@ unsafe impl<T> Std140ArrayElement for T where T: Std140Struct {}
 /// # Example
 ///
 /// ```
-/// let std140_array: std140::array::array<std140::vec2, 2> = std140::array![
-///     std140::vec2(1.0, 0.0),
-///     std140::vec2(0.0, 1.0),
+/// let std140_array: std140::array::array<std140::vec::vec2, 2> = std140::array![
+///     std140::vec::vec2(1.0, 0.0),
+///     std140::vec::vec2(0.0, 1.0),
 /// ];
 /// ```
 #[macro_export]
@@ -192,141 +193,6 @@ pub struct float(pub f32);
 unsafe impl ReprStd140 for float {}
 unsafe impl Std140ArrayElement for float {}
 
-/// A column vector of 2 [float] values.
-///
-/// # Example
-///
-/// ```
-/// let value = std140::vec2(0.0, 1.0);
-/// ```
-#[repr(C, align(8))]
-#[derive(Clone, Copy, PartialEq, Debug)]
-pub struct vec2(pub f32, pub f32);
-
-impl vec2 {
-    /// Creates a new [vec2] with zeros in all positions.
-    pub fn zero() -> Self {
-        vec2(0.0, 0.0)
-    }
-}
-
-unsafe impl ReprStd140 for vec2 {}
-unsafe impl Std140ArrayElement for vec2 {}
-
-impl Index<usize> for vec2 {
-    type Output = f32;
-
-    fn index(&self, index: usize) -> &Self::Output {
-        match index {
-            0 => &self.0,
-            1 => &self.1,
-            _ => panic!("Index out of bounds"),
-        }
-    }
-}
-
-impl IndexMut<usize> for vec2 {
-    fn index_mut(&mut self, index: usize) -> &mut Self::Output {
-        match index {
-            0 => &mut self.0,
-            1 => &mut self.1,
-            _ => panic!("Index out of bounds"),
-        }
-    }
-}
-
-/// A column vector of 3 [float] values.
-///
-/// # Example
-///
-/// ```
-/// let value = std140::vec3(0.0, 0.0, 1.0);
-/// ```
-#[repr(C, align(16))]
-#[derive(Clone, Copy, PartialEq, Debug)]
-pub struct vec3(pub f32, pub f32, pub f32);
-
-impl vec3 {
-    /// Creates a new [vec3] with zeros in all positions.
-    pub fn zero() -> Self {
-        vec3(0.0, 0.0, 0.0)
-    }
-}
-
-unsafe impl ReprStd140 for vec3 {}
-unsafe impl Std140ArrayElement for vec3 {}
-
-impl Index<usize> for vec3 {
-    type Output = f32;
-
-    fn index(&self, index: usize) -> &Self::Output {
-        match index {
-            0 => &self.0,
-            1 => &self.1,
-            2 => &self.2,
-            _ => panic!("Index out of bounds"),
-        }
-    }
-}
-
-impl IndexMut<usize> for vec3 {
-    fn index_mut(&mut self, index: usize) -> &mut Self::Output {
-        match index {
-            0 => &mut self.0,
-            1 => &mut self.1,
-            2 => &mut self.2,
-            _ => panic!("Index out of bounds"),
-        }
-    }
-}
-
-/// A column vector of 4 [float] values.
-///
-/// # Example
-///
-/// ```
-/// let value = std140::vec4(0.0, 0.0, 0.0, 1.0);
-/// ```
-#[repr(C, align(16))]
-#[derive(Clone, Copy, PartialEq, Debug)]
-pub struct vec4(pub f32, pub f32, pub f32, pub f32);
-
-impl vec4 {
-    /// Creates a new [vec4] with zeros in all positions.
-    pub fn zero() -> Self {
-        vec4(0.0, 0.0, 0.0, 0.0)
-    }
-}
-
-unsafe impl ReprStd140 for vec4 {}
-unsafe impl Std140ArrayElement for vec4 {}
-
-impl Index<usize> for vec4 {
-    type Output = f32;
-
-    fn index(&self, index: usize) -> &Self::Output {
-        match index {
-            0 => &self.0,
-            1 => &self.1,
-            2 => &self.2,
-            3 => &self.3,
-            _ => panic!("Index out of bounds"),
-        }
-    }
-}
-
-impl IndexMut<usize> for vec4 {
-    fn index_mut(&mut self, index: usize) -> &mut Self::Output {
-        match index {
-            0 => &mut self.0,
-            1 => &mut self.1,
-            2 => &mut self.2,
-            3 => &mut self.3,
-            _ => panic!("Index out of bounds"),
-        }
-    }
-}
-
 /// A 32-bit signed integer value.
 ///
 /// # Example
@@ -340,141 +206,6 @@ pub struct int(pub i32);
 
 unsafe impl ReprStd140 for int {}
 unsafe impl Std140ArrayElement for int {}
-
-/// A column vector of 2 [int] values.
-///
-/// # Example
-///
-/// ```
-/// let value = std140::ivec2(0, 1);
-/// ```
-#[repr(C, align(8))]
-#[derive(Clone, Copy, PartialEq, Debug)]
-pub struct ivec2(pub i32, pub i32);
-
-impl ivec2 {
-    /// Creates a new [ivec2] with zeros in all positions.
-    pub fn zero() -> Self {
-        ivec2(0, 0)
-    }
-}
-
-unsafe impl ReprStd140 for ivec2 {}
-unsafe impl Std140ArrayElement for ivec2 {}
-
-impl Index<usize> for ivec2 {
-    type Output = i32;
-
-    fn index(&self, index: usize) -> &Self::Output {
-        match index {
-            0 => &self.0,
-            1 => &self.1,
-            _ => panic!("Index out of bounds"),
-        }
-    }
-}
-
-impl IndexMut<usize> for ivec2 {
-    fn index_mut(&mut self, index: usize) -> &mut Self::Output {
-        match index {
-            0 => &mut self.0,
-            1 => &mut self.1,
-            _ => panic!("Index out of bounds"),
-        }
-    }
-}
-
-/// A column vector of 3 [int] values.
-///
-/// # Example
-///
-/// ```
-/// let value = std140::ivec3(0, 0, 1);
-/// ```
-#[repr(C, align(16))]
-#[derive(Clone, Copy, PartialEq, Debug)]
-pub struct ivec3(pub i32, pub i32, pub i32);
-
-impl ivec3 {
-    /// Creates a new [ivec3] with zeros in all positions.
-    pub fn zero() -> Self {
-        ivec3(0, 0, 0)
-    }
-}
-
-unsafe impl ReprStd140 for ivec3 {}
-unsafe impl Std140ArrayElement for ivec3 {}
-
-impl Index<usize> for ivec3 {
-    type Output = i32;
-
-    fn index(&self, index: usize) -> &Self::Output {
-        match index {
-            0 => &self.0,
-            1 => &self.1,
-            2 => &self.2,
-            _ => panic!("Index out of bounds"),
-        }
-    }
-}
-
-impl IndexMut<usize> for ivec3 {
-    fn index_mut(&mut self, index: usize) -> &mut Self::Output {
-        match index {
-            0 => &mut self.0,
-            1 => &mut self.1,
-            2 => &mut self.2,
-            _ => panic!("Index out of bounds"),
-        }
-    }
-}
-
-/// A column vector of 4 [int] values.
-///
-/// # Example
-///
-/// ```
-/// let value = std140::ivec4(0, 0, 0, 1);
-/// ```
-#[repr(C, align(16))]
-#[derive(Clone, Copy, PartialEq, Debug)]
-pub struct ivec4(pub i32, pub i32, pub i32, pub i32);
-
-impl ivec4 {
-    /// Creates a new [ivec4] with zeros in all positions.
-    pub fn zero() -> Self {
-        ivec4(0, 0, 0, 0)
-    }
-}
-
-unsafe impl ReprStd140 for ivec4 {}
-unsafe impl Std140ArrayElement for ivec4 {}
-
-impl Index<usize> for ivec4 {
-    type Output = i32;
-
-    fn index(&self, index: usize) -> &Self::Output {
-        match index {
-            0 => &self.0,
-            1 => &self.1,
-            2 => &self.2,
-            3 => &self.3,
-            _ => panic!("Index out of bounds"),
-        }
-    }
-}
-
-impl IndexMut<usize> for ivec4 {
-    fn index_mut(&mut self, index: usize) -> &mut Self::Output {
-        match index {
-            0 => &mut self.0,
-            1 => &mut self.1,
-            2 => &mut self.2,
-            3 => &mut self.3,
-            _ => panic!("Index out of bounds"),
-        }
-    }
-}
 
 /// A 32-bit unsigned integer value.
 ///
@@ -490,140 +221,6 @@ pub struct uint(pub u32);
 unsafe impl ReprStd140 for uint {}
 unsafe impl Std140ArrayElement for uint {}
 
-/// A column vector of 2 [uint] values.
-///
-/// # Example
-///
-/// ```
-/// let value = std140::uvec2(0, 1);
-/// ```
-#[repr(C, align(8))]
-#[derive(Clone, Copy, PartialEq, Debug)]
-pub struct uvec2(pub u32, pub u32);
-
-impl uvec2 {
-    /// Creates a new [uvec2] with zeros in all positions.
-    pub fn zero() -> Self {
-        uvec2(0, 0)
-    }
-}
-
-unsafe impl ReprStd140 for uvec2 {}
-unsafe impl Std140ArrayElement for uvec2 {}
-
-impl Index<usize> for uvec2 {
-    type Output = u32;
-
-    fn index(&self, index: usize) -> &Self::Output {
-        match index {
-            0 => &self.0,
-            1 => &self.1,
-            _ => panic!("Index out of bounds"),
-        }
-    }
-}
-
-impl IndexMut<usize> for uvec2 {
-    fn index_mut(&mut self, index: usize) -> &mut Self::Output {
-        match index {
-            0 => &mut self.0,
-            1 => &mut self.1,
-            _ => panic!("Index out of bounds"),
-        }
-    }
-}
-
-/// A column vector of 3 [uint] values.
-///
-/// # Example
-///
-/// ```
-/// let value = std140::uvec3(0, 0, 1);
-/// ```
-#[repr(C, align(16))]
-#[derive(Clone, Copy, PartialEq, Debug)]
-pub struct uvec3(pub u32, pub u32, pub u32);
-
-impl uvec3 {
-    /// Creates a new [uvec3] with zeros in all positions.
-    pub fn zero() -> Self {
-        uvec3(0, 0, 0)
-    }
-}
-
-unsafe impl ReprStd140 for uvec3 {}
-unsafe impl Std140ArrayElement for uvec3 {}
-
-impl Index<usize> for uvec3 {
-    type Output = u32;
-
-    fn index(&self, index: usize) -> &Self::Output {
-        match index {
-            0 => &self.0,
-            1 => &self.1,
-            2 => &self.2,
-            _ => panic!("Index out of bounds"),
-        }
-    }
-}
-
-impl IndexMut<usize> for uvec3 {
-    fn index_mut(&mut self, index: usize) -> &mut Self::Output {
-        match index {
-            0 => &mut self.0,
-            1 => &mut self.1,
-            2 => &mut self.2,
-            _ => panic!("Index out of bounds"),
-        }
-    }
-}
-
-/// A column vector of 4 [uint] values.
-///
-/// # Example
-///
-/// ```
-/// let value = std140::uvec4(0, 0, 0, 1);
-/// ```
-#[repr(C, align(16))]
-#[derive(Clone, Copy, PartialEq, Debug)]
-pub struct uvec4(pub u32, pub u32, pub u32, pub u32);
-
-impl uvec4 {
-    /// Creates a new [uvec4] with zeros in all positions.
-    pub fn zero() -> Self {
-        uvec4(0, 0, 0, 0)
-    }
-}
-
-unsafe impl ReprStd140 for uvec4 {}
-unsafe impl Std140ArrayElement for uvec4 {}
-
-impl Index<usize> for uvec4 {
-    type Output = u32;
-
-    fn index(&self, index: usize) -> &Self::Output {
-        match index {
-            0 => &self.0,
-            1 => &self.1,
-            2 => &self.2,
-            3 => &self.3,
-            _ => panic!("Index out of bounds"),
-        }
-    }
-}
-
-impl IndexMut<usize> for uvec4 {
-    fn index_mut(&mut self, index: usize) -> &mut Self::Output {
-        match index {
-            0 => &mut self.0,
-            1 => &mut self.1,
-            2 => &mut self.2,
-            3 => &mut self.3,
-            _ => panic!("Index out of bounds"),
-        }
-    }
-}
 
 /// A 32-bit boolean value.
 ///
@@ -654,144 +251,25 @@ impl From<bool> for boolean {
     }
 }
 
-/// A column vector of 2 [boolean] values.
-///
-/// # Example
-///
-/// ```
-/// let value = std140::bvec2(std140::boolean::False, std140::boolean::True);
-/// ```
-#[repr(C, align(8))]
-#[derive(Clone, Copy, PartialEq, Debug)]
-pub struct bvec2(pub boolean, pub boolean);
-
-unsafe impl ReprStd140 for bvec2 {}
-unsafe impl Std140ArrayElement for bvec2 {}
-
-impl Index<usize> for bvec2 {
-    type Output = boolean;
-
-    fn index(&self, index: usize) -> &Self::Output {
-        match index {
-            0 => &self.0,
-            1 => &self.1,
-            _ => panic!("Index out of bounds"),
-        }
-    }
-}
-
-impl IndexMut<usize> for bvec2 {
-    fn index_mut(&mut self, index: usize) -> &mut Self::Output {
-        match index {
-            0 => &mut self.0,
-            1 => &mut self.1,
-            _ => panic!("Index out of bounds"),
-        }
-    }
-}
-
-/// A column vector of 3 [boolean] values.
-///
-/// # Example
-///
-/// ```
-/// let value = std140::bvec3(std140::boolean::False, std140::boolean::False, std140::boolean::True);
-/// ```
-#[repr(C, align(16))]
-#[derive(Clone, Copy, PartialEq, Debug)]
-pub struct bvec3(pub boolean, pub boolean, pub boolean);
-
-unsafe impl ReprStd140 for bvec3 {}
-unsafe impl Std140ArrayElement for bvec3 {}
-
-impl Index<usize> for bvec3 {
-    type Output = boolean;
-
-    fn index(&self, index: usize) -> &Self::Output {
-        match index {
-            0 => &self.0,
-            1 => &self.1,
-            2 => &self.2,
-            _ => panic!("Index out of bounds"),
-        }
-    }
-}
-
-impl IndexMut<usize> for bvec3 {
-    fn index_mut(&mut self, index: usize) -> &mut Self::Output {
-        match index {
-            0 => &mut self.0,
-            1 => &mut self.1,
-            2 => &mut self.2,
-            _ => panic!("Index out of bounds"),
-        }
-    }
-}
-
-/// A column vector of 4 [boolean] values.
-///
-/// # Example
-///
-/// ```
-/// let value = std140::bvec4(
-///     std140::boolean::False,
-///     std140::boolean::False,
-///     std140::boolean::False,
-///     std140::boolean::True
-/// );
-/// ```
-#[repr(C, align(16))]
-#[derive(Clone, Copy, PartialEq, Debug)]
-pub struct bvec4(pub boolean, pub boolean, pub boolean, pub boolean);
-
-unsafe impl ReprStd140 for bvec4 {}
-unsafe impl Std140ArrayElement for bvec4 {}
-
-impl Index<usize> for bvec4 {
-    type Output = boolean;
-
-    fn index(&self, index: usize) -> &Self::Output {
-        match index {
-            0 => &self.0,
-            1 => &self.1,
-            2 => &self.2,
-            3 => &self.3,
-            _ => panic!("Index out of bounds"),
-        }
-    }
-}
-
-impl IndexMut<usize> for bvec4 {
-    fn index_mut(&mut self, index: usize) -> &mut Self::Output {
-        match index {
-            0 => &mut self.0,
-            1 => &mut self.1,
-            2 => &mut self.2,
-            3 => &mut self.3,
-            _ => panic!("Index out of bounds"),
-        }
-    }
-}
-
 /// A matrix with 2 columns and 2 rows, represented by 2 [vec2] vectors.
 ///
 /// # Example
 ///
 /// ```
 /// let value = std140::mat2x2(
-///     std140::vec2(0.0, 1.0),
-///     std140::vec2(0.0, 1.0),
+///     std140::vec::vec2(0.0, 1.0),
+///     std140::vec::vec2(0.0, 1.0),
 /// );
 /// ```
 #[derive(Clone, Copy, PartialEq)]
 pub struct mat2x2 {
-    columns: array::array<vec2, 2>,
+    columns: array::array<vec::vec2, 2>,
 }
 
 impl mat2x2 {
     /// Creates a new [mat2x2] with zeros in all positions.
     pub fn zero() -> Self {
-        mat2x2(vec2::zero(), vec2::zero())
+        mat2x2(vec::vec2::zero(), vec::vec2::zero())
     }
 }
 
@@ -800,7 +278,7 @@ impl mat2x2 {
 /// # Example
 ///
 /// See [mat2x2][struct@mat2x2].
-pub fn mat2x2(c0: vec2, c1: vec2) -> mat2x2 {
+pub fn mat2x2(c0: vec::vec2, c1: vec::vec2) -> mat2x2 {
     mat2x2 {
         columns: array![c0, c1],
     }
@@ -810,7 +288,7 @@ unsafe impl ReprStd140 for mat2x2 {}
 unsafe impl Std140ArrayElement for mat2x2 {}
 
 impl Deref for mat2x2 {
-    type Target = array::array<vec2, 2>;
+    type Target = array::array<vec::vec2, 2>;
 
     fn deref(&self) -> &Self::Target {
         &self.columns
@@ -835,19 +313,19 @@ impl fmt::Debug for mat2x2 {
 ///
 /// ```
 /// let value = std140::mat2x3(
-///     std140::vec3(0.0, 0.0, 1.0),
-///     std140::vec3(0.0, 0.0, 1.0),
+///     std140::vec::vec3(0.0, 0.0, 1.0),
+///     std140::vec::vec3(0.0, 0.0, 1.0),
 /// );
 /// ```
 #[derive(Clone, Copy, PartialEq)]
 pub struct mat2x3 {
-    columns: array::array<vec3, 2>,
+    columns: array::array<vec::vec3, 2>,
 }
 
 impl mat2x3 {
     /// Creates a new [mat2x3] with zeros in all positions.
     pub fn zero() -> Self {
-        mat2x3(vec3::zero(), vec3::zero())
+        mat2x3(vec::vec3::zero(), vec::vec3::zero())
     }
 }
 
@@ -856,7 +334,7 @@ impl mat2x3 {
 /// # Example
 ///
 /// See [mat2x3][struct@mat2x3].
-pub fn mat2x3(c0: vec3, c1: vec3) -> mat2x3 {
+pub fn mat2x3(c0: vec::vec3, c1: vec::vec3) -> mat2x3 {
     mat2x3 {
         columns: array![c0, c1],
     }
@@ -866,7 +344,7 @@ unsafe impl ReprStd140 for mat2x3 {}
 unsafe impl Std140ArrayElement for mat2x3 {}
 
 impl Deref for mat2x3 {
-    type Target = array::array<vec3, 2>;
+    type Target = array::array<vec::vec3, 2>;
 
     fn deref(&self) -> &Self::Target {
         &self.columns
@@ -891,19 +369,19 @@ impl fmt::Debug for mat2x3 {
 ///
 /// ```
 /// let value = std140::mat2x4(
-///     std140::vec4(0.0, 0.0, 0.0, 1.0),
-///     std140::vec4(0.0, 0.0, 0.0, 1.0),
+///     std140::vec::vec4(0.0, 0.0, 0.0, 1.0),
+///     std140::vec::vec4(0.0, 0.0, 0.0, 1.0),
 /// );
 /// ```
 #[derive(Clone, Copy, PartialEq)]
 pub struct mat2x4 {
-    columns: array::array<vec4, 2>,
+    columns: array::array<vec::vec4, 2>,
 }
 
 impl mat2x4 {
     /// Creates a new [mat2x4] with zeros in all positions.
     pub fn zero() -> Self {
-        mat2x4(vec4::zero(), vec4::zero())
+        mat2x4(vec::vec4::zero(), vec::vec4::zero())
     }
 }
 
@@ -912,7 +390,7 @@ impl mat2x4 {
 /// # Example
 ///
 /// See [mat2x4][struct@mat2x4].
-pub fn mat2x4(c0: vec4, c1: vec4) -> mat2x4 {
+pub fn mat2x4(c0: vec::vec4, c1: vec::vec4) -> mat2x4 {
     mat2x4 {
         columns: array![c0, c1],
     }
@@ -922,7 +400,7 @@ unsafe impl ReprStd140 for mat2x4 {}
 unsafe impl Std140ArrayElement for mat2x4 {}
 
 impl Deref for mat2x4 {
-    type Target = array::array<vec4, 2>;
+    type Target = array::array<vec::vec4, 2>;
 
     fn deref(&self) -> &Self::Target {
         &self.columns
@@ -947,20 +425,20 @@ impl fmt::Debug for mat2x4 {
 ///
 /// ```
 /// let value = std140::mat3x2(
-///     std140::vec2(0.0, 1.0),
-///     std140::vec2(0.0, 1.0),
-///     std140::vec2(0.0, 1.0),
+///     std140::vec::vec2(0.0, 1.0),
+///     std140::vec::vec2(0.0, 1.0),
+///     std140::vec::vec2(0.0, 1.0),
 /// );
 /// ```
 #[derive(Clone, Copy, PartialEq)]
 pub struct mat3x2 {
-    columns: array::array<vec2, 3>,
+    columns: array::array<vec::vec2, 3>,
 }
 
 impl mat3x2 {
     /// Creates a new [mat3x2] with zeros in all positions.
     pub fn zero() -> Self {
-        mat3x2(vec2::zero(), vec2::zero(), vec2::zero())
+        mat3x2(vec::vec2::zero(), vec::vec2::zero(), vec::vec2::zero())
     }
 }
 
@@ -969,7 +447,7 @@ impl mat3x2 {
 /// # Example
 ///
 /// See [mat3x2][struct@mat3x2].
-pub fn mat3x2(c0: vec2, c1: vec2, c2: vec2) -> mat3x2 {
+pub fn mat3x2(c0: vec::vec2, c1: vec::vec2, c2: vec::vec2) -> mat3x2 {
     mat3x2 {
         columns: array![c0, c1, c2],
     }
@@ -979,7 +457,7 @@ unsafe impl ReprStd140 for mat3x2 {}
 unsafe impl Std140ArrayElement for mat3x2 {}
 
 impl Deref for mat3x2 {
-    type Target = array::array<vec2, 3>;
+    type Target = array::array<vec::vec2, 3>;
 
     fn deref(&self) -> &Self::Target {
         &self.columns
@@ -1004,20 +482,20 @@ impl fmt::Debug for mat3x2 {
 ///
 /// ```
 /// let value = std140::mat3x3(
-///     std140::vec3(0.0, 0.0, 1.0),
-///     std140::vec3(0.0, 0.0, 1.0),
-///     std140::vec3(0.0, 0.0, 1.0),
+///     std140::vec::vec3(0.0, 0.0, 1.0),
+///     std140::vec::vec3(0.0, 0.0, 1.0),
+///     std140::vec::vec3(0.0, 0.0, 1.0),
 /// );
 /// ```
 #[derive(Clone, Copy, PartialEq)]
 pub struct mat3x3 {
-    columns: array::array<vec3, 3>,
+    columns: array::array<vec::vec3, 3>,
 }
 
 impl mat3x3 {
     /// Creates a new [mat3x3] with zeros in all positions.
     pub fn zero() -> Self {
-        mat3x3(vec3::zero(), vec3::zero(), vec3::zero())
+        mat3x3(vec::vec3::zero(), vec::vec3::zero(), vec::vec3::zero())
     }
 }
 
@@ -1026,7 +504,7 @@ impl mat3x3 {
 /// # Example
 ///
 /// See [mat3x3][struct@mat3x3].
-pub fn mat3x3(c0: vec3, c1: vec3, c2: vec3) -> mat3x3 {
+pub fn mat3x3(c0: vec::vec3, c1: vec::vec3, c2: vec::vec3) -> mat3x3 {
     mat3x3 {
         columns: array![c0, c1, c2],
     }
@@ -1036,7 +514,7 @@ unsafe impl ReprStd140 for mat3x3 {}
 unsafe impl Std140ArrayElement for mat3x3 {}
 
 impl Deref for mat3x3 {
-    type Target = array::array<vec3, 3>;
+    type Target = array::array<vec::vec3, 3>;
 
     fn deref(&self) -> &Self::Target {
         &self.columns
@@ -1061,20 +539,20 @@ impl fmt::Debug for mat3x3 {
 ///
 /// ```
 /// let value = std140::mat3x4(
-///     std140::vec4(0.0, 0.0, 0.0, 1.0),
-///     std140::vec4(0.0, 0.0, 0.0, 1.0),
-///     std140::vec4(0.0, 0.0, 0.0, 1.0),
+///     std140::vec::vec4(0.0, 0.0, 0.0, 1.0),
+///     std140::vec::vec4(0.0, 0.0, 0.0, 1.0),
+///     std140::vec::vec4(0.0, 0.0, 0.0, 1.0),
 /// );
 /// ```
 #[derive(Clone, Copy, PartialEq)]
 pub struct mat3x4 {
-    columns: array::array<vec4, 3>,
+    columns: array::array<vec::vec4, 3>,
 }
 
 impl mat3x4 {
     /// Creates a new [mat3x4] with zeros in all positions.
     pub fn zero() -> Self {
-        mat3x4(vec4::zero(), vec4::zero(), vec4::zero())
+        mat3x4(vec::vec4::zero(), vec::vec4::zero(), vec::vec4::zero())
     }
 }
 
@@ -1083,7 +561,7 @@ impl mat3x4 {
 /// # Example
 ///
 /// See [mat3x4][struct@mat3x4].
-pub fn mat3x4(c0: vec4, c1: vec4, c2: vec4) -> mat3x4 {
+pub fn mat3x4(c0: vec::vec4, c1: vec::vec4, c2: vec::vec4) -> mat3x4 {
     mat3x4 {
         columns: array![c0, c1, c2],
     }
@@ -1093,7 +571,7 @@ unsafe impl ReprStd140 for mat3x4 {}
 unsafe impl Std140ArrayElement for mat3x4 {}
 
 impl Deref for mat3x4 {
-    type Target = array::array<vec4, 3>;
+    type Target = array::array<vec::vec4, 3>;
 
     fn deref(&self) -> &Self::Target {
         &self.columns
@@ -1118,21 +596,21 @@ impl fmt::Debug for mat3x4 {
 ///
 /// ```
 /// let value = std140::mat4x2(
-///     std140::vec2(0.0, 1.0),
-///     std140::vec2(0.0, 1.0),
-///     std140::vec2(0.0, 1.0),
-///     std140::vec2(0.0, 1.0),
+///     std140::vec::vec2(0.0, 1.0),
+///     std140::vec::vec2(0.0, 1.0),
+///     std140::vec::vec2(0.0, 1.0),
+///     std140::vec::vec2(0.0, 1.0),
 /// );
 /// ```
 #[derive(Clone, Copy, PartialEq)]
 pub struct mat4x2 {
-    columns: array::array<vec2, 4>,
+    columns: array::array<vec::vec2, 4>,
 }
 
 impl mat4x2 {
     /// Creates a new [mat4x2] with zeros in all positions.
     pub fn zero() -> Self {
-        mat4x2(vec2::zero(), vec2::zero(), vec2::zero(), vec2::zero())
+        mat4x2(vec::vec2::zero(), vec::vec2::zero(), vec::vec2::zero(), vec::vec2::zero())
     }
 }
 
@@ -1141,7 +619,7 @@ impl mat4x2 {
 /// # Example
 ///
 /// See [mat4x2][struct@mat4x2].
-pub fn mat4x2(c0: vec2, c1: vec2, c2: vec2, c3: vec2) -> mat4x2 {
+pub fn mat4x2(c0: vec::vec2, c1: vec::vec2, c2: vec::vec2, c3: vec::vec2) -> mat4x2 {
     mat4x2 {
         columns: array![c0, c1, c2, c3],
     }
@@ -1151,7 +629,7 @@ unsafe impl ReprStd140 for mat4x2 {}
 unsafe impl Std140ArrayElement for mat4x2 {}
 
 impl Deref for mat4x2 {
-    type Target = array::array<vec2, 4>;
+    type Target = array::array<vec::vec2, 4>;
 
     fn deref(&self) -> &Self::Target {
         &self.columns
@@ -1176,21 +654,21 @@ impl fmt::Debug for mat4x2 {
 ///
 /// ```
 /// let value = std140::mat4x3(
-///     std140::vec3(0.0, 0.0, 1.0),
-///     std140::vec3(0.0, 0.0, 1.0),
-///     std140::vec3(0.0, 0.0, 1.0),
-///     std140::vec3(0.0, 0.0, 1.0),
+///     std140::vec::vec3(0.0, 0.0, 1.0),
+///     std140::vec::vec3(0.0, 0.0, 1.0),
+///     std140::vec::vec3(0.0, 0.0, 1.0),
+///     std140::vec::vec3(0.0, 0.0, 1.0),
 /// );
 /// ```
 #[derive(Clone, Copy, PartialEq)]
 pub struct mat4x3 {
-    columns: array::array<vec3, 4>,
+    columns: array::array<vec::vec3, 4>,
 }
 
 impl mat4x3 {
     /// Creates a new [mat4x3] with zeros in all positions.
     pub fn zero() -> Self {
-        mat4x3(vec3::zero(), vec3::zero(), vec3::zero(), vec3::zero())
+        mat4x3(vec::vec3::zero(), vec::vec3::zero(), vec::vec3::zero(), vec::vec3::zero())
     }
 }
 
@@ -1199,7 +677,7 @@ impl mat4x3 {
 /// # Example
 ///
 /// See [mat4x3][struct@mat4x3].
-pub fn mat4x3(c0: vec3, c1: vec3, c2: vec3, c3: vec3) -> mat4x3 {
+pub fn mat4x3(c0: vec::vec3, c1: vec::vec3, c2: vec::vec3, c3: vec::vec3) -> mat4x3 {
     mat4x3 {
         columns: array![c0, c1, c2, c3],
     }
@@ -1209,7 +687,7 @@ unsafe impl ReprStd140 for mat4x3 {}
 unsafe impl Std140ArrayElement for mat4x3 {}
 
 impl Deref for mat4x3 {
-    type Target = array::array<vec3, 4>;
+    type Target = array::array<vec::vec3, 4>;
 
     fn deref(&self) -> &Self::Target {
         &self.columns
@@ -1234,21 +712,21 @@ impl fmt::Debug for mat4x3 {
 ///
 /// ```
 /// let value = std140::mat4x4(
-///     std140::vec4(0.0, 0.0, 0.0, 1.0),
-///     std140::vec4(0.0, 0.0, 0.0, 1.0),
-///     std140::vec4(0.0, 0.0, 0.0, 1.0),
-///     std140::vec4(0.0, 0.0, 0.0, 1.0),
+///     std140::vec::vec4(0.0, 0.0, 0.0, 1.0),
+///     std140::vec::vec4(0.0, 0.0, 0.0, 1.0),
+///     std140::vec::vec4(0.0, 0.0, 0.0, 1.0),
+///     std140::vec::vec4(0.0, 0.0, 0.0, 1.0),
 /// );
 /// ```
 #[derive(Clone, Copy, PartialEq)]
 pub struct mat4x4 {
-    columns: array::array<vec4, 4>,
+    columns: array::array<vec::vec4, 4>,
 }
 
 impl mat4x4 {
     /// Creates a new [mat4x4] with zeros in all positions.
     pub fn zero() -> Self {
-        mat4x4(vec4::zero(), vec4::zero(), vec4::zero(), vec4::zero())
+        mat4x4(vec::vec4::zero(), vec::vec4::zero(), vec::vec4::zero(), vec::vec4::zero())
     }
 }
 
@@ -1257,7 +735,7 @@ impl mat4x4 {
 /// # Example
 ///
 /// See [mat4x4][struct@mat4x4].
-pub fn mat4x4(c0: vec4, c1: vec4, c2: vec4, c3: vec4) -> mat4x4 {
+pub fn mat4x4(c0: vec::vec4, c1: vec::vec4, c2: vec::vec4, c3: vec::vec4) -> mat4x4 {
     mat4x4 {
         columns: array![c0, c1, c2, c3],
     }
@@ -1267,7 +745,7 @@ unsafe impl ReprStd140 for mat4x4 {}
 unsafe impl Std140ArrayElement for mat4x4 {}
 
 impl Deref for mat4x4 {
-    type Target = array::array<vec4, 4>;
+    type Target = array::array<vec::vec4, 4>;
 
     fn deref(&self) -> &Self::Target {
         &self.columns

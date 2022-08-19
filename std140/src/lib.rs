@@ -86,7 +86,7 @@
 //! struct Uniforms {
 //!     transform: std140::mat4x4,
 //!     ambient_light_color: std140::vec3,
-//!     lights: std140::array<PointLight, 2>
+//!     lights: std140::array::array<PointLight, 2>
 //! }
 //!
 //! let instance = Uniforms {
@@ -115,8 +115,10 @@
 //!
 //! [repr_std140]: attr.repr_std140.html
 
-use std::fmt;
-use std::ops::{Deref, DerefMut, Index, IndexMut};
+use ::std::{
+    fmt,
+    ops::{Deref, DerefMut, Index, IndexMut},
+};
 
 /// Attribute macro that can be applied to a struct to ensure its representation is compatible with
 /// the std140 memory layout convention.
@@ -136,6 +138,8 @@ use std::ops::{Deref, DerefMut, Index, IndexMut};
 /// ```
 pub use std140_macros::repr_std140;
 
+pub mod array;
+
 /// Marker trait for types that can be used as fields in structs marked with
 /// [`#[repr_std140]`][repr_std140].
 ///
@@ -153,94 +157,12 @@ pub unsafe trait Std140Struct {}
 unsafe impl<T> ReprStd140 for T where T: Std140Struct {}
 unsafe impl<T> Std140ArrayElement for T where T: Std140Struct {}
 
-/// Represents an std140 compatible array.
-///
-/// All elements in an std140 array are aligned to at least 16 bytes.
-///
-/// The [array!][macro@array] macro may be used to initialize an array.
+/// Initializes a `std140` [array][array::array].
 ///
 /// # Example
 ///
 /// ```
-/// let std140_array: std140::array<std140::vec2, 2> = std140::array![
-///     std140::vec2(1.0, 0.0),
-///     std140::vec2(0.0, 1.0),
-/// ];
-/// ```
-#[derive(Clone, Copy)]
-pub struct array<T, const LEN: usize>
-where
-    T: Std140ArrayElement,
-{
-    internal: [ArrayElementWrapper<T>; LEN],
-}
-
-impl<T, const LEN: usize> array<T, { LEN }>
-where
-    T: Std140ArrayElement,
-{
-    #[doc(hidden)]
-    pub fn from_wrapped(wrapped: [ArrayElementWrapper<T>; LEN]) -> Self {
-        array { internal: wrapped }
-    }
-}
-
-impl<T, const LEN: usize> PartialEq for array<T, { LEN }>
-where
-    T: Std140ArrayElement + PartialEq,
-{
-    fn eq(&self, other: &Self) -> bool {
-        for i in 0..LEN {
-            if self.internal[i] != other.internal[i] {
-                return false;
-            }
-        }
-
-        true
-    }
-}
-
-impl<T, const LEN: usize> fmt::Debug for array<T, { LEN }>
-where
-    T: Std140ArrayElement + fmt::Debug,
-{
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        f.debug_list().entries(self.internal.iter()).finish()
-    }
-}
-
-// TODO: something like this? (if that ever becomes possible)
-//impl<T, const LEN: usize> Unsize<slice<T>> for array<T, {LEN}> {}
-//
-//pub struct slice<T> where T: Std140ArrayElement {
-//    internal: *mut [ArrayElementWrapper<T>]
-//}
-
-#[doc(hidden)]
-#[derive(Clone, Copy, PartialEq, Eq, Hash)]
-#[repr(C, align(16))]
-pub struct ArrayElementWrapper<T>
-where
-    T: Std140ArrayElement,
-{
-    pub element: T,
-}
-
-impl<T> fmt::Debug for ArrayElementWrapper<T>
-where
-    T: Std140ArrayElement + fmt::Debug,
-{
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        <T as fmt::Debug>::fmt(&self.element, f)
-    }
-}
-
-/// Initializes a `std140` [array][struct@array].
-///
-/// # Example
-///
-/// ```
-/// let std140_array: std140::array<std140::vec2, 2> = std140::array![
+/// let std140_array: std140::array::array<std140::vec2, 2> = std140::array![
 ///     std140::vec2(1.0, 0.0),
 ///     std140::vec2(0.0, 1.0),
 /// ];
@@ -248,23 +170,13 @@ where
 #[macro_export]
 macro_rules! array {
     ($elem:expr; $n:expr) => {
-        $crate::array::from_wrapped([$crate::ArrayElementWrapper {
-            element: $elem
-        }; $n])
+        $crate::array::array::new([$crate::array::AlignmentedElement($elem); $n])
     };
     ($($x:expr),*) => {
-        $crate::array::from_wrapped([
-            $(
-                $crate::ArrayElementWrapper {
-                    element: $x
-                }
-            ),*
-        ])
+        $crate::array::array::new([$($crate::array::AlignmentedElement($x) ),*])
     };
     ($($x:expr,)*) => ($crate::array![$($x),*])
 }
-
-unsafe impl<T, const LEN: usize> ReprStd140 for array<T, { LEN }> where T: Std140ArrayElement {}
 
 /// A 32-bit floating point value.
 ///
@@ -873,7 +785,7 @@ impl IndexMut<usize> for bvec4 {
 /// ```
 #[derive(Clone, Copy, PartialEq)]
 pub struct mat2x2 {
-    columns: array<vec2, 2>,
+    columns: array::array<vec2, 2>,
 }
 
 impl mat2x2 {
@@ -898,7 +810,7 @@ unsafe impl ReprStd140 for mat2x2 {}
 unsafe impl Std140ArrayElement for mat2x2 {}
 
 impl Deref for mat2x2 {
-    type Target = array<vec2, 2>;
+    type Target = array::array<vec2, 2>;
 
     fn deref(&self) -> &Self::Target {
         &self.columns
@@ -929,7 +841,7 @@ impl fmt::Debug for mat2x2 {
 /// ```
 #[derive(Clone, Copy, PartialEq)]
 pub struct mat2x3 {
-    columns: array<vec3, 2>,
+    columns: array::array<vec3, 2>,
 }
 
 impl mat2x3 {
@@ -954,7 +866,7 @@ unsafe impl ReprStd140 for mat2x3 {}
 unsafe impl Std140ArrayElement for mat2x3 {}
 
 impl Deref for mat2x3 {
-    type Target = array<vec3, 2>;
+    type Target = array::array<vec3, 2>;
 
     fn deref(&self) -> &Self::Target {
         &self.columns
@@ -985,7 +897,7 @@ impl fmt::Debug for mat2x3 {
 /// ```
 #[derive(Clone, Copy, PartialEq)]
 pub struct mat2x4 {
-    columns: array<vec4, 2>,
+    columns: array::array<vec4, 2>,
 }
 
 impl mat2x4 {
@@ -1010,7 +922,7 @@ unsafe impl ReprStd140 for mat2x4 {}
 unsafe impl Std140ArrayElement for mat2x4 {}
 
 impl Deref for mat2x4 {
-    type Target = array<vec4, 2>;
+    type Target = array::array<vec4, 2>;
 
     fn deref(&self) -> &Self::Target {
         &self.columns
@@ -1042,7 +954,7 @@ impl fmt::Debug for mat2x4 {
 /// ```
 #[derive(Clone, Copy, PartialEq)]
 pub struct mat3x2 {
-    columns: array<vec2, 3>,
+    columns: array::array<vec2, 3>,
 }
 
 impl mat3x2 {
@@ -1067,7 +979,7 @@ unsafe impl ReprStd140 for mat3x2 {}
 unsafe impl Std140ArrayElement for mat3x2 {}
 
 impl Deref for mat3x2 {
-    type Target = array<vec2, 3>;
+    type Target = array::array<vec2, 3>;
 
     fn deref(&self) -> &Self::Target {
         &self.columns
@@ -1099,7 +1011,7 @@ impl fmt::Debug for mat3x2 {
 /// ```
 #[derive(Clone, Copy, PartialEq)]
 pub struct mat3x3 {
-    columns: array<vec3, 3>,
+    columns: array::array<vec3, 3>,
 }
 
 impl mat3x3 {
@@ -1124,7 +1036,7 @@ unsafe impl ReprStd140 for mat3x3 {}
 unsafe impl Std140ArrayElement for mat3x3 {}
 
 impl Deref for mat3x3 {
-    type Target = array<vec3, 3>;
+    type Target = array::array<vec3, 3>;
 
     fn deref(&self) -> &Self::Target {
         &self.columns
@@ -1156,7 +1068,7 @@ impl fmt::Debug for mat3x3 {
 /// ```
 #[derive(Clone, Copy, PartialEq)]
 pub struct mat3x4 {
-    columns: array<vec4, 3>,
+    columns: array::array<vec4, 3>,
 }
 
 impl mat3x4 {
@@ -1181,7 +1093,7 @@ unsafe impl ReprStd140 for mat3x4 {}
 unsafe impl Std140ArrayElement for mat3x4 {}
 
 impl Deref for mat3x4 {
-    type Target = array<vec4, 3>;
+    type Target = array::array<vec4, 3>;
 
     fn deref(&self) -> &Self::Target {
         &self.columns
@@ -1214,7 +1126,7 @@ impl fmt::Debug for mat3x4 {
 /// ```
 #[derive(Clone, Copy, PartialEq)]
 pub struct mat4x2 {
-    columns: array<vec2, 4>,
+    columns: array::array<vec2, 4>,
 }
 
 impl mat4x2 {
@@ -1239,7 +1151,7 @@ unsafe impl ReprStd140 for mat4x2 {}
 unsafe impl Std140ArrayElement for mat4x2 {}
 
 impl Deref for mat4x2 {
-    type Target = array<vec2, 4>;
+    type Target = array::array<vec2, 4>;
 
     fn deref(&self) -> &Self::Target {
         &self.columns
@@ -1272,7 +1184,7 @@ impl fmt::Debug for mat4x2 {
 /// ```
 #[derive(Clone, Copy, PartialEq)]
 pub struct mat4x3 {
-    columns: array<vec3, 4>,
+    columns: array::array<vec3, 4>,
 }
 
 impl mat4x3 {
@@ -1297,7 +1209,7 @@ unsafe impl ReprStd140 for mat4x3 {}
 unsafe impl Std140ArrayElement for mat4x3 {}
 
 impl Deref for mat4x3 {
-    type Target = array<vec3, 4>;
+    type Target = array::array<vec3, 4>;
 
     fn deref(&self) -> &Self::Target {
         &self.columns
@@ -1330,7 +1242,7 @@ impl fmt::Debug for mat4x3 {
 /// ```
 #[derive(Clone, Copy, PartialEq)]
 pub struct mat4x4 {
-    columns: array<vec4, 4>,
+    columns: array::array<vec4, 4>,
 }
 
 impl mat4x4 {
@@ -1355,7 +1267,7 @@ unsafe impl ReprStd140 for mat4x4 {}
 unsafe impl Std140ArrayElement for mat4x4 {}
 
 impl Deref for mat4x4 {
-    type Target = array<vec4, 4>;
+    type Target = array::array<vec4, 4>;
 
     fn deref(&self) -> &Self::Target {
         &self.columns

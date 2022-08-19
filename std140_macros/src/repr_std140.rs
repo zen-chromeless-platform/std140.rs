@@ -1,7 +1,7 @@
 use ::{
     proc_macro2::{Span, TokenStream},
     quote::{quote, quote_spanned},
-    syn::{spanned::Spanned, Data, DeriveInput, Ident}
+    syn::{spanned::Spanned, Data, DeriveInput, Ident},
 };
 
 pub fn expand_repr_std140(input: &DeriveInput) -> Result<TokenStream, String> {

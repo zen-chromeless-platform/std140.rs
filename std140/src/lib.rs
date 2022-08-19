@@ -200,7 +200,10 @@ where
     }
 }
 
-impl<T, const LEN: usize> fmt::Debug for array<T, { LEN }> where T: Std140ArrayElement + fmt::Debug {
+impl<T, const LEN: usize> fmt::Debug for array<T, { LEN }>
+where
+    T: Std140ArrayElement + fmt::Debug,
+{
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         f.debug_list().entries(self.internal.iter()).finish()
     }
@@ -223,7 +226,10 @@ where
     pub element: T,
 }
 
-impl<T> fmt::Debug for ArrayElementWrapper<T> where T: Std140ArrayElement + fmt::Debug {
+impl<T> fmt::Debug for ArrayElementWrapper<T>
+where
+    T: Std140ArrayElement + fmt::Debug,
+{
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         <T as fmt::Debug>::fmt(&self.element, f)
     }

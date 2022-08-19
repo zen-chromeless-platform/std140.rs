@@ -1,7 +1,4 @@
-use ::{
-    compiletest_rs as compiletest,
-    std::path::PathBuf,
-};
+use ::{compiletest_rs as compiletest, std::path::PathBuf};
 
 fn run_mode(mode: &'static str) {
     let mut config = compiletest::Config::default();

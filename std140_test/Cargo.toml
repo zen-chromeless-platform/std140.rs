@@ -1,5 +1,5 @@
 [package]
-name = "std140-test"
+name = "std140_test"
 version = "0.1.0"
 authors = ["Roland Schermer <roland0507@gmail.com>", "zen-chromeless-platform"]
 edition = "2018"

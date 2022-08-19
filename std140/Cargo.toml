@@ -8,4 +8,4 @@ license = "MIT"
 readme = "../README.md"
 
 [dependencies]
-std140-macros = "0.1.2"
+std140_macros = { path = "../std140_macros" }

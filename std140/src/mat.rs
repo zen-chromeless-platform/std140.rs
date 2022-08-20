@@ -16,6 +16,13 @@ impl mat2x2 {
     pub const fn zero() -> Self {
         crate::mat2x2(vec::vec2::zero(), vec::vec2::zero())
     }
+
+    pub const fn identity() -> Self {
+        crate::mat2x2(
+            vec::vec2(1., 0.),
+            vec::vec2(0., 1.),
+        )
+    }    
 }
 
 unsafe impl ReprStd140 for mat2x2 {}
@@ -160,6 +167,14 @@ impl mat3x3 {
     pub const fn zero() -> Self {
         crate::mat3x3(vec::vec3::zero(), vec::vec3::zero(), vec::vec3::zero())
     }
+
+    pub const fn identity() -> Self {
+        crate::mat3x3(
+            vec::vec3(1., 0., 0.),
+            vec::vec3(0., 1., 0.),
+            vec::vec3(0., 0., 1.),
+        )
+    }    
 }
 
 unsafe impl ReprStd140 for mat3x3 {}
@@ -304,6 +319,15 @@ impl mat4x4 {
     pub const fn zero() -> Self {
         crate::mat4x4(vec::vec4::zero(), vec::vec4::zero(), vec::vec4::zero(), vec::vec4::zero())
     }
+
+    pub const fn identity() -> Self {
+        crate::mat4x4(
+            vec::vec4(1., 0., 0., 0.),
+            vec::vec4(0., 1., 0., 0.),
+            vec::vec4(0., 0., 1., 0.),
+            vec::vec4(0., 0., 0., 1.),
+        )
+    }    
 }
 
 unsafe impl ReprStd140 for mat4x4 {}

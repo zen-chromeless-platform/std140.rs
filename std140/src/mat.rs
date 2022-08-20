@@ -18,11 +18,8 @@ impl mat2x2 {
     }
 
     pub const fn identity() -> Self {
-        crate::mat2x2(
-            vec::vec2(1., 0.),
-            vec::vec2(0., 1.),
-        )
-    }    
+        crate::mat2x2(vec::vec2(1., 0.), vec::vec2(0., 1.))
+    }
 }
 
 unsafe impl ReprStd140 for mat2x2 {}
@@ -174,7 +171,7 @@ impl mat3x3 {
             vec::vec3(0., 1., 0.),
             vec::vec3(0., 0., 1.),
         )
-    }    
+    }
 }
 
 unsafe impl ReprStd140 for mat3x3 {}
@@ -245,7 +242,12 @@ pub struct mat4x2 {
 impl mat4x2 {
     /// Creates a new `mat4x2` with zeros in all positions.
     pub const fn zero() -> Self {
-        crate::mat4x2(vec::vec2::zero(), vec::vec2::zero(), vec::vec2::zero(), vec::vec2::zero())
+        crate::mat4x2(
+            vec::vec2::zero(),
+            vec::vec2::zero(),
+            vec::vec2::zero(),
+            vec::vec2::zero(),
+        )
     }
 }
 
@@ -281,7 +283,12 @@ pub struct mat4x3 {
 impl mat4x3 {
     /// Creates a new `mat4x3` with zeros in all positions.
     pub const fn zero() -> Self {
-        crate::mat4x3(vec::vec3::zero(), vec::vec3::zero(), vec::vec3::zero(), vec::vec3::zero())
+        crate::mat4x3(
+            vec::vec3::zero(),
+            vec::vec3::zero(),
+            vec::vec3::zero(),
+            vec::vec3::zero(),
+        )
     }
 }
 
@@ -317,7 +324,12 @@ pub struct mat4x4 {
 impl mat4x4 {
     /// Creates a new `mat4x4` with zeros in all positions.
     pub const fn zero() -> Self {
-        crate::mat4x4(vec::vec4::zero(), vec::vec4::zero(), vec::vec4::zero(), vec::vec4::zero())
+        crate::mat4x4(
+            vec::vec4::zero(),
+            vec::vec4::zero(),
+            vec::vec4::zero(),
+            vec::vec4::zero(),
+        )
     }
 
     pub const fn identity() -> Self {
@@ -327,7 +339,7 @@ impl mat4x4 {
             vec::vec4(0., 0., 1., 0.),
             vec::vec4(0., 0., 0., 1.),
         )
-    }    
+    }
 }
 
 unsafe impl ReprStd140 for mat4x4 {}

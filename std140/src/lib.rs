@@ -101,9 +101,9 @@
 /// ```
 pub use std140_macros::repr_std140;
 
-pub mod vec;
-pub mod mat;
 pub mod array;
+pub mod mat;
+pub mod vec;
 
 /// Marker trait for types that can be used as fields in structs marked with
 /// [`#[repr_std140]`][repr_std140].
@@ -185,7 +185,6 @@ pub struct uint(pub u32);
 unsafe impl ReprStd140 for uint {}
 unsafe impl Std140ArrayElement for uint {}
 
-
 /// A 32-bit boolean value.
 ///
 /// [boolean::False] is stored identically to a [uint] of `0`; [boolean::True] is stored identically
@@ -195,7 +194,7 @@ unsafe impl Std140ArrayElement for uint {}
 ///
 /// ```
 /// use ::std140::{boolean, uint};
-/// 
+///
 /// assert_eq!(boolean::from(uint(1)), boolean::True);
 /// assert_eq!(boolean::from(uint(0)), boolean::False);
 /// ```
@@ -213,9 +212,13 @@ macro_rules! impl_from_for_boolean {
     ($name:ty, $zero:literal) => {
         impl From<$name> for boolean {
             fn from(value: $name) -> Self {
-                if value.0 != $zero { boolean::True } else {boolean::False}
+                if value.0 != $zero {
+                    boolean::True
+                } else {
+                    boolean::False
+                }
             }
-        }                
+        }
     };
 }
 
@@ -225,7 +228,11 @@ impl_from_for_boolean!(uint, 0);
 
 impl From<bool> for boolean {
     fn from(value: bool) -> Self {
-        if value { boolean::True } else {boolean::False}
+        if value {
+            boolean::True
+        } else {
+            boolean::False
+        }
     }
 }
 

@@ -3,10 +3,7 @@ use ::std::{
     ops::{Deref, DerefMut},
 };
 
-use crate::{
-    ReprStd140,
-    Std140ArrayElement,
-};
+use crate::{ReprStd140, Std140ArrayElement};
 
 #[derive(Clone, Copy, PartialEq, Eq, Hash)]
 #[repr(C, align(16))]
@@ -24,7 +21,7 @@ where
 }
 
 /// Represents an std140 compatible array.
-/// 
+///
 /// All elements in an std140 array are aligned to at least 16 bytes.
 #[derive(Clone, Copy)]
 pub struct array<T, const LEN: usize>([AlignmentedElement<T>; LEN])
@@ -39,7 +36,7 @@ where
     pub const fn new(inner: [AlignmentedElement<T>; LEN]) -> Self {
         Self(inner)
     }
-}    
+}
 
 impl<T, const LEN: usize> From<[AlignmentedElement<T>; LEN]> for array<T, { LEN }>
 where

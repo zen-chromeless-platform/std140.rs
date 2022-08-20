@@ -25,7 +25,10 @@ fn fmt_mat2x3_test() {
     assert_eq!(
         format!(
             "{:?}",
-            std140::mat2x3(std140::vec::vec3(1.0, 0.0, 0.0), std140::vec::vec3(0.0, 1.0, 0.0),)
+            std140::mat2x3(
+                std140::vec::vec3(1.0, 0.0, 0.0),
+                std140::vec::vec3(0.0, 1.0, 0.0),
+            )
         ),
         "mat2x3[vec3(1.0, 0.0, 0.0), vec3(0.0, 1.0, 0.0)]"
     );

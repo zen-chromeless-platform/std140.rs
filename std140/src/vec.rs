@@ -1,12 +1,6 @@
-use ::std::{
-    ops::{Index,IndexMut},
-};
+use ::std::ops::{Index, IndexMut};
 
-use crate::{
-    ReprStd140,
-    Std140ArrayElement,
-    boolean,
-};
+use crate::{boolean, ReprStd140, Std140ArrayElement};
 
 /// A column vector of 2 [float][crate::float] values.
 ///
@@ -520,7 +514,12 @@ pub struct bvec4(pub boolean, pub boolean, pub boolean, pub boolean);
 impl bvec4 {
     /// Creates a new `bvec4` with zeros in all positions.
     pub const fn zero() -> Self {
-        Self(boolean::False, boolean::False, boolean::False, boolean::False)
+        Self(
+            boolean::False,
+            boolean::False,
+            boolean::False,
+            boolean::False,
+        )
     }
 }
 

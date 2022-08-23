@@ -103,6 +103,7 @@ pub use std140_macros::repr_std140;
 
 pub mod array;
 pub mod mat;
+pub mod unbounded_array;
 pub mod vec;
 
 /// Marker trait for types that can be used as fields in structs marked with
@@ -141,6 +142,35 @@ macro_rules! array {
         $crate::array::array::new([$($crate::array::AlignmentedElement($x) ),*])
     };
     ($($x:expr,)*) => ($crate::array![$($x),*])
+}
+
+/// Initializes a `std140` [unbounded_array][unbounded_array::unbounded_array].
+#[macro_export]
+macro_rules! unbounded_array {
+    ($t:ty, $elem:expr; $n:expr) => {
+        $crate::unbounded_array::unbounded_array::<$t>::new([$crate::array::AlignmentedElement($elem); $n].to_vec())
+    };
+    ($t:ty, $($x:expr),*) => {
+        $crate::unbounded_array::unbounded_array::<$t>::new([$($crate::array::AlignmentedElement($x) ),*].to_vec())
+    };
+    ($t:ty, $($x:expr,)*) => ($crate::unbounded_array![$t, $($x),*])
+}
+
+#[cfg(test)]
+mod tests {
+    use super::{array::AlignmentedElement, uint};
+
+    #[test]
+    fn it_works() {
+        let a = unbounded_array![uint, uint(0)];
+        assert_eq!(AlignmentedElement(uint(0)), a[0]);
+    }
+
+    #[test]
+    fn it_works2() {
+        let a = unbounded_array![uint, uint(0);1];
+        assert_eq!(AlignmentedElement(uint(0)), a[0]);
+    }
 }
 
 /// A 32-bit floating point value.

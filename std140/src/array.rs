@@ -5,7 +5,7 @@ use ::std::{
 
 use crate::{ReprStd140, Std140ArrayElement};
 
-#[derive(Clone, Copy, PartialEq, Eq, Hash)]
+#[derive(Clone, Copy, PartialEq, Hash)]
 #[repr(C, align(16))]
 pub struct AlignmentedElement<T>(pub T)
 where

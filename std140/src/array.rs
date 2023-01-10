@@ -20,6 +20,26 @@ where
     }
 }
 
+impl<T> Deref for AlignmentedElement<T>
+where
+    T: Std140ArrayElement,
+{
+    type Target = T;
+
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
+}
+
+impl<T> DerefMut for AlignmentedElement<T>
+where
+    T: Std140ArrayElement,
+{
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.0
+    }
+}
+
 /// Represents an std140 compatible array.
 ///
 /// All elements in an std140 array are aligned to at least 16 bytes.
